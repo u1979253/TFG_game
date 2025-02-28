@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 using Random = UnityEngine.Random;
+
 
 public static class AudioType
 {
@@ -52,7 +55,9 @@ public class SoundManager : MonoBehaviour
 
     [SerializeField] private List<AudioLoop> loops;
     [SerializeField] private List<AudioSFX> sfxDatabase;
-    
+    [SerializeField] private Slider volumeSlider;
+    [SerializeField] private TextMeshProUGUI volumeText;
+
     private AudioSource loopSource;
     private List<AudioSource> sfxSources;
     private int maxSfxSources = 10;
@@ -81,6 +86,31 @@ public class SoundManager : MonoBehaviour
         for (int i = 0; i < maxSfxSources; i++)
         {
             sfxSources.Add(gameObject.AddComponent<AudioSource>());
+        }
+
+        if (volumeSlider != null)
+        {
+            print(volumeSlider.value);  
+            AudioListener.volume = volumeSlider.value;
+            volumeSlider.onValueChanged.AddListener(SetVolume);
+            UpdateVolumeText(volumeSlider.value);
+        }
+    }
+
+    public void SetVolume(float value)
+    {
+        AudioListener.volume = value;
+        PlayerPrefs.SetFloat("GameVolume", value);
+        PlayerPrefs.Save();
+        UpdateVolumeText(value);
+    }
+
+    private void UpdateVolumeText(float value)
+    {
+        if (volumeText != null)
+        {
+            int percentage = Mathf.RoundToInt(value * 100);
+            volumeText.text = percentage + "%";
         }
     }
 
