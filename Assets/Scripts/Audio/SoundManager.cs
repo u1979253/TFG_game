@@ -89,8 +89,7 @@ public class SoundManager : MonoBehaviour
         }
 
         if (volumeSlider != null)
-        {
-            print(volumeSlider.value);  
+        {  
             AudioListener.volume = volumeSlider.value;
             volumeSlider.onValueChanged.AddListener(SetVolume);
             UpdateVolumeText(volumeSlider.value);
