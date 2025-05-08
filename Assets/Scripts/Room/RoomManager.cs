@@ -59,9 +59,9 @@ namespace ggj25
             else if (!generationComplete)
             {
 
-                Debug.Log($"Generation complet, {roomCount} rooms generated. " +
-                    $"Room count: {roomCount}, Max rooms: {maxRooms}");
                 generationComplete = true;
+                Debug.Log($"Generation complete: {roomCount} rooms.");
+                InstantiateAllRooms();
             }
         }
 
@@ -88,10 +88,6 @@ namespace ggj25
             int x = roomIndex.x; int y = roomIndex.y;
             roomGrid[x, y] = 1;
             roomCount++;
-            var initialRoom = Instantiate(roomPrefabLTR, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
-            initialRoom.name = $"Room-{roomCount}";
-            //initialRoom.GetComponent<Room>().RoomIndex = roomIndex;
-            roomObjects.Add(initialRoom);
 
         }
 
@@ -100,33 +96,55 @@ namespace ggj25
             int x = roomIndex.x;
             int y = roomIndex.y;
 
-            if (roomCount >= maxRooms)
-            {
+            // 1. Está dentro de la grilla?
+            if (x < 0 || x >= gridSizeX || y < 0 || y >= gridSizeY)
                 return false;
-            }
 
-            if (Random.value < 0.5f && roomIndex != Vector2Int.zero)
-            {
-                return false;
-            }
-
-            if (CountAdjacentRooms(roomIndex) > 1)
-            {
-                return false;
-            }
+            // 2. ¿Ya existe una sala ahí?
             if (roomGrid[x, y] != 0)
                 return false;
-            roomQueue.Enqueue(roomIndex);
-            roomGrid[x, y] = 1;
-            roomCount++;
 
-            var prefab = GetRoomPrefabFor(roomIndex);
-            var newRoom = Instantiate(prefab, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
-            newRoom.name = $"Room-{roomCount}";
-            roomObjects.Add(newRoom);
+            // 3. ¿Hemos llegado al máximo de salas?
+            if (roomCount >= maxRooms)
+                return false;
+
+            // 4. Aleatorio para ramificar (salta un 50% de las veces, excepto la primera)
+            if (roomQueue.Count > 0 && Random.value < 0.5f)
+                return false;
+
+            // 5. No queremos más de 1 sala adyacente (evita corredores anchos)
+            if (CountAdjacentRooms(roomIndex) > 1)
+                return false;
+
+            // --- PASA TODOS LOS FILTROS: generamos aquí ---
+            roomQueue.Enqueue(roomIndex);
+            roomGrid[x, y] = 1;    // marca la casilla como ocupada
+            roomCount++;           // aumenta el contador
 
             return true;
         }
+
+
+
+        private void InstantiateAllRooms()
+        {
+            for (int x = 0; x < gridSizeX; x++)
+            {
+                for (int y = 0; y < gridSizeY; y++)
+                {
+                    if (roomGrid[x, y] == 1)
+                    {
+                        Vector2Int idx = new Vector2Int(x, y);
+                        GameObject prefab = GetRoomPrefabFor(idx);
+                        Vector3 pos = GetPositionFromGridIndex(idx);
+                        GameObject room = Instantiate(prefab, pos, Quaternion.identity);
+                        room.name = $"Room-{x}_{y}";
+                        roomObjects.Add(room);
+                    }
+                }
+            }
+        }
+
 
         private GameObject GetRoomPrefabFor(Vector2Int roomIndex)
         {
