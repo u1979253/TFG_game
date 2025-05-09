@@ -14,6 +14,15 @@ namespace ggj25
         [SerializeField] private GameObject roomPrefabR;
         [SerializeField] private GameObject roomPrefabT;
         [SerializeField] private GameObject roomPrefabLR;
+        [SerializeField] private GameObject roomPrefabB;    // porta de sota
+        [SerializeField] private GameObject roomPrefabLTB;
+        [SerializeField] private GameObject roomPrefabRTB;
+        [SerializeField] private GameObject roomPrefabLTRB;
+        [SerializeField] private GameObject roomPrefabLB;
+        [SerializeField] private GameObject roomPrefabRB;
+        [SerializeField] private GameObject roomPrefabTB;
+        [SerializeField] private GameObject roomPrefabLRB;
+
         [SerializeField] private int maxRooms = 15;
         [SerializeField] private int minRooms = 8;
 
@@ -156,17 +165,33 @@ namespace ggj25
             bool hasTop = y < gridSizeY - 1 && roomGrid[x, y + 1] != 0;
             bool hasBottom = y > 0 && roomGrid[x, y - 1] != 0;
 
+            // 4 conexiones
+            if (hasLeft && hasTop && hasRight && hasBottom) return roomPrefabLTRB;
+
+            // 3 conexiones
             if (hasLeft && hasTop && hasRight) return roomPrefabLTR;
+            if (hasLeft && hasTop && hasBottom) return roomPrefabLTB;
+            if (hasRight && hasTop && hasBottom) return roomPrefabRTB;
+            if (hasLeft && hasRight && hasBottom) return roomPrefabLRB;
+
+            // 2 conexiones
             if (hasLeft && hasTop) return roomPrefabLT;
             if (hasRight && hasTop) return roomPrefabRT;
+            if (hasLeft && hasBottom) return roomPrefabLB;
+            if (hasRight && hasBottom) return roomPrefabRB;
             if (hasLeft && hasRight) return roomPrefabLR;
+            if (hasTop && hasBottom) return roomPrefabTB;
+
+            // 1 conexión
             if (hasLeft) return roomPrefabL;
             if (hasRight) return roomPrefabR;
             if (hasTop) return roomPrefabT;
+            if (hasBottom) return roomPrefabB;
 
-            // Por defecto si no hay conexiones
+            // Ninguna conexión
             return roomPrefabT;
         }
+
 
 
         private Vector3 GetPositionFromGridIndex(Vector2Int gridIndex)
