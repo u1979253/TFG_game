@@ -15,6 +15,7 @@ namespace ggj25
         private void Awake()
         {
             _roomController = GetComponentInParent<RoomController>();
+            print("RoomController" + _roomController.name + " found in " + _roomController);
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -36,6 +37,7 @@ namespace ggj25
                     if (GameManager.Instance?.LevelManager != null && _roomController != null)
                     {
                         GameManager.Instance.LevelManager.SelectRoom(_roomController);
+
                         _changeScene = true;
                     }
                 }
