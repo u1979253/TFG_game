@@ -115,7 +115,7 @@ namespace ggj25
         private void Respawn(HeroController heroController)
         {
             Time.timeScale = 1;
-            LevelManager.Rewpawn();
+            //LevelManager.Rewpawn();
         }
 
         private void ShowGameOver(bool isWin)

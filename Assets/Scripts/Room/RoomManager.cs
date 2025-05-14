@@ -24,7 +24,7 @@ namespace ggj25
         [SerializeField] private GameObject roomPrefabLRB;
 
         [SerializeField] private int maxRooms = 15;
-        [SerializeField] private int minRooms = 8;
+        //[SerializeField] private int minRooms = 8;
 
         int roomWidth = 30;
         int roomHeight = 20;

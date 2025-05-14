@@ -85,9 +85,10 @@ namespace ggj25
                 && !_currentRoom.IsCompleted;
         }
 
-        public void Rewpawn()
+        /*public void Rewpawn()
         {
             _hero.transform.position = _currentRoom.CheckPoint.position;
         }
+        */
     }
 }
