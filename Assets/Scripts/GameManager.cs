@@ -56,6 +56,21 @@ namespace ggj25
             IsGameOver = false;
         }
 
+        public void ToProcedural()
+        {
+            _mainMusicTimer?.Kill();
+            SoundManager.Instance.StopAllSounds();
+            SoundManager.Instance.StopLoop();
+            SoundManager.Instance.PlaySFX(AudioType.SFX.GameTheme, OnPlayMainTheme);
+
+            SceneManager.LoadScene(3);
+            SceneManager.sceneLoaded += OnGameSceneLoaded;
+
+            Time.timeScale = 1;
+            IsInGame = true;
+            IsGameOver = false;
+        }
+
         private void OnPlayMainTheme(AudioSFX sfx, AudioClip clip)
         {
             _mainMusicTimer = DOVirtual.DelayedCall(clip.length, OnFinishLoop);
