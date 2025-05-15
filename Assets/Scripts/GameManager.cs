@@ -15,7 +15,7 @@ namespace ggj25
         public bool IsInGame { get; private set; }
         public bool IsPlaying => Time.timeScale > 0;
         
-        public LevelManager LevelManager { get; private set; }
+        public LevelManager LevelManager { get;  set; }
 
         private Tween _mainMusicTimer;
         private InputData _input;

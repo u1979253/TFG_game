@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace ggj25
 {
@@ -20,27 +21,66 @@ namespace ggj25
 
         public DustCleaner DustCleaner => _currentRoom?.DustCleaner;
 
+        private void OnEnable()
+        {
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnDisable()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            Init();  // vuelve a recabar RoomControllers y selecciona la sala inicial
+        }
+
         public void Awake()
         { 
             Init();
         }
 
-        private void Init()
+        public void Init()
         {
+            print("entrooo");
+            // 1. Recopila todas las salas y al héroe
             _rooms = GameObject.FindObjectsOfType<RoomController>().ToList();
             _hero = GameObject.FindObjectOfType<HeroController>();
+            print("numero habitacions:" + _rooms.Count);
+            // 2. Detecta en qué sala está el héroe al comenzar, usando OverlapPoint
+            Vector2 heroPos = _hero.transform.position;
+            int layer = LayerMask.NameToLayer("Room");    // tu layer de detectores
+            int mask = 1 << layer;
 
-            var initialRoom = _rooms.Find(room => room.name.Contains("tutori",
-                                                                  StringComparison.InvariantCultureIgnoreCase));
-            
-            SelectRoom(initialRoom);
-            
+            Collider2D hit = Physics2D.OverlapPoint(heroPos, mask);
+            print("colider" + hit);
+            if (hit != null)
+            {
+                var detector = hit.GetComponent<EnterRoomDetector>();
+                if (detector != null)
+                {
+                    print("room name" + detector._roomController.name + " en " + detector._roomController);
+                    SelectRoom(detector._roomController);
+                }
+            }
+            else
+            {
+                // 3. Fallback: si no encuentra detector, elige la sala "tutorial"
+                var tutorial = _rooms
+                    .FirstOrDefault(r => r.name
+                        .IndexOf("tutori", StringComparison.InvariantCultureIgnoreCase) >= 0);
+
+                if (tutorial != null)
+                    SelectRoom(tutorial);
+            }
+
+            // 4. Inicializaciones restantes
             _timestamp = PLAYER_ROOM_CHECK_TIME;
-            
             _completedRooms = 0;
             _gameWon = false;
         }
-        
+
         public void SelectRoom(RoomController roomController)
         {
             if (roomController == _currentRoom)

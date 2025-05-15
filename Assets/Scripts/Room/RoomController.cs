@@ -30,6 +30,8 @@ namespace ggj25
         public DustCleaner DustCleaner { get; private set; }
         private int _pixelSize;
 
+        [SerializeField] private Collider2D _roomAreaCollider;
+
         private float _timeStamp;
 
 

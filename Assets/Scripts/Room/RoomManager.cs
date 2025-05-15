@@ -40,7 +40,11 @@ namespace ggj25
 
         private int roomCount = 0;
 
+        private int roomNumber = 1;
+
         private bool generationComplete = false;
+
+        public static Dictionary<Vector2Int, RoomController> RoomLookup;
 
         private void Start()
         {
@@ -71,6 +75,8 @@ namespace ggj25
                 generationComplete = true;
                 Debug.Log($"Generation complete: {roomCount} rooms.");
                 InstantiateAllRooms();
+                if (GameManager.Instance?.LevelManager != null)
+                    GameManager.Instance.LevelManager.Init();
             }
         }
 
@@ -137,6 +143,8 @@ namespace ggj25
 
         private void InstantiateAllRooms()
         {
+
+            RoomLookup = new Dictionary<Vector2Int, RoomController>();
             for (int x = 0; x < gridSizeX; x++)
             {
                 for (int y = 0; y < gridSizeY; y++)
@@ -147,8 +155,12 @@ namespace ggj25
                         GameObject prefab = GetRoomPrefabFor(idx);
                         Vector3 pos = GetPositionFromGridIndex(idx);
                         GameObject room = Instantiate(prefab, pos, Quaternion.identity);
-                        room.name = $"Room-{x}_{y}";
+                        room.name = $"Room-{roomNumber}";
+
+
+
                         roomObjects.Add(room);
+                        roomNumber++;
                     }
                 }
             }
