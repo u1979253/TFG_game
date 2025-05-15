@@ -25,10 +25,9 @@ namespace ggj25
             {
                 return;
             }
-            
+            print("colision con " + other.gameObject.name); 
             Destroy(gameObject); // Destruir proyectil al impactar
             
-            //De momento dejo esta cancion para empezar
             SoundManager.Instance.PlaySFX(AudioType.SFX.ProjectileDestroyed);
         }
     }

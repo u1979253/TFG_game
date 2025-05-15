@@ -21,6 +21,14 @@ namespace ggj25
 
         public DustCleaner DustCleaner => _currentRoom?.DustCleaner;
 
+        public enum Direction
+        {
+            Left,
+            Right,
+            Up,
+            Down
+        }
+
         private void OnEnable()
         {
             SceneManager.sceneLoaded += OnSceneLoaded;
@@ -125,6 +133,43 @@ namespace ggj25
                 && !_currentRoom.IsCompleted;
         }
 
+        /*
+        private void UnlockAdjacentDoors(RoomController room)
+        {
+            var idx = room.RoomIndex;
+
+            // chequea cada vecino y abre ambas puertas
+            TryUnlock(idx + Vector2Int.left, Direction.Left);
+            TryUnlock(idx + Vector2Int.right, Direction.Right);
+            TryUnlock(idx + Vector2Int.up, Direction.Up);
+            TryUnlock(idx + Vector2Int.down, Direction.Down);
+        }
+        
+        private void TryUnlock(Vector2Int neighborIdx, Direction dirFromCurrent)
+        {
+            if (RoomManager.RoomLookup.TryGetValue(neighborIdx, out var neighbor))
+            {
+                // abre puerta en la habitación actual:
+                _currentRoom.OpenDoor(dirFromCurrent);
+
+                // abre la puerta contraria en el vecino:
+                Direction opposite = Opposite(dirFromCurrent);
+                neighbor.OpenDoor(opposite);
+            }
+        }
+
+        private Direction Opposite(Direction d)
+        {
+            return d switch
+            {
+                Direction.Left => Direction.Right,
+                Direction.Right => Direction.Left,
+                Direction.Up => Direction.Down,
+                Direction.Down => Direction.Up,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+        */
         /*public void Rewpawn()
         {
             _hero.transform.position = _currentRoom.CheckPoint.position;

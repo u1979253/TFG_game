@@ -426,7 +426,7 @@ PrefabInstance:
     - target: {fileID: 341789086544415474, guid: d0017a22339d41442ace2554eddc1fd7, type: 3}
       propertyPath: m_sharedMaterial
       value: 
-      objectReference: {fileID: -616048221245908577, guid: 98e1e4394c406b8428ac73353016fb3d, type: 2}
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 341789086544415474, guid: d0017a22339d41442ace2554eddc1fd7, type: 3}
       propertyPath: m_hasFontAssetChanged
       value: 0
@@ -2552,7 +2552,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 448328650305015268, guid: 0d3082ffe51214f489ac038d82df74c0, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 473361487579044956, guid: 0d3082ffe51214f489ac038d82df74c0, type: 3}
       propertyPath: m_LocalScale.x
@@ -3282,6 +3282,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.x
       value: 113.7
       objectReference: {fileID: 0}
+    - target: {fileID: 5556578309029546246, guid: 0d3082ffe51214f489ac038d82df74c0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 89.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5599150203059382920, guid: 0d3082ffe51214f489ac038d82df74c0, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.7
@@ -3624,7 +3628,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7531679130806870763, guid: 0d3082ffe51214f489ac038d82df74c0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7621411308662701133, guid: 0d3082ffe51214f489ac038d82df74c0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3794,6 +3798,14 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 37b05907e5961a142aa4e104be94b4ab, type: 3}
+    - target: {fileID: 8754675675485586544, guid: 0d3082ffe51214f489ac038d82df74c0, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.7980001
+      objectReference: {fileID: 0}
+    - target: {fileID: 8754675675485586544, guid: 0d3082ffe51214f489ac038d82df74c0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 8.53
+      objectReference: {fileID: 0}
     - target: {fileID: 8762475123568935714, guid: 0d3082ffe51214f489ac038d82df74c0, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.5

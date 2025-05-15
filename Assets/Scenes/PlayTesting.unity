@@ -583,6 +583,7 @@ MonoBehaviour:
   roomPrefabRB: {fileID: 8844442619399884025, guid: 2c714664be84711439b7062474fd50ed, type: 3}
   roomPrefabTB: {fileID: 8844442619399884025, guid: 703e3aa0d75c20949a950c1d06f28446, type: 3}
   roomPrefabLRB: {fileID: 8844442619399884025, guid: bde0abd45920c0347881beebf5aac935, type: 3}
+  bossRoomPrefab: {fileID: 4325119730682703457, guid: 8ca01435e8f908049852cdd86aca0a78, type: 3}
   maxRooms: 15
 --- !u!1 &1655564933
 GameObject:

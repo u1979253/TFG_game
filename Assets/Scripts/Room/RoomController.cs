@@ -22,7 +22,16 @@ namespace ggj25
         private List<DoorController> _doors;
         
         public float CleanFactor { get; private set; }
-        
+
+        public enum Direction
+        {
+            Left,
+            Right,
+            Up,
+            Down
+        }
+
+        public Vector2Int RoomIndex { get; set; }
         private HeroController _hero;
 
         private Vector3 _previousPosition;
@@ -133,5 +142,18 @@ namespace ggj25
             _cleaningEffect.Stop();
             _cleaningEffect.Play();
         }
+        /*
+        public void OpenDoor(Direction dir)
+        {
+            // por ejemplo, desactiva el candado
+            switch (dir)
+            {
+                case Direction.Left: doorLeftLock.SetActive(false); break;
+                case Direction.Right: doorRightLock.SetActive(false); break;
+                case Direction.Up: doorTopLock.SetActive(false); break;
+                case Direction.Down: doorBottomLock.SetActive(false); break;
+            }
+        }
+        */
     }
 }
