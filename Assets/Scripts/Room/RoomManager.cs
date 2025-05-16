@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
@@ -30,10 +31,13 @@ namespace ggj25
         int roomWidth = 30;
         int roomHeight = 20;
 
-        int gridSizeX = 10;
-        int gridSizeY = 10;
+        int gridSizeX = 12;
+        int gridSizeY = 12;
 
         private List<GameObject> roomObjects = new List<GameObject>();
+
+        private Vector2Int? bossRoomIndex = null;
+        private Vector2Int? belowBossIndex = null;
 
         private Queue<Vector2Int> roomQueue = new Queue<Vector2Int>();
 
@@ -46,6 +50,11 @@ namespace ggj25
         private bool generationComplete = false;
 
         public static Dictionary<Vector2Int, RoomController> RoomLookup;
+
+        private HashSet<Vector2Int> forcedTopDoor = new HashSet<Vector2Int>();
+
+        [SerializeField] private float bossRoomYOffset = 1.5f;
+
 
         private void Start()
         {
@@ -144,31 +153,101 @@ namespace ggj25
 
         private void InstantiateAllRooms()
         {
+            PlaceBossRoom();  // inicializa bossRoomIndex y belowBossIndex
 
             RoomLookup = new Dictionary<Vector2Int, RoomController>();
+
             for (int x = 0; x < gridSizeX; x++)
             {
                 for (int y = 0; y < gridSizeY; y++)
                 {
                     if (roomGrid[x, y] == 1)
                     {
-                        Vector2Int idx = new Vector2Int(x, y);
-                        GameObject prefab = GetRoomPrefabFor(idx);
-                        Vector3 pos = GetPositionFromGridIndex(idx);
-                        GameObject room = Instantiate(prefab, pos, Quaternion.identity);
-                        room.name = $"Room-{roomNumber}";
+                        var idx = new Vector2Int(x, y);
+                        var pos = GetPositionFromGridIndex(idx);
+                        GameObject prefab;
+                        Vector3 spawnPos = pos;
+                        if (bossRoomIndex.HasValue && bossRoomIndex.Value == idx)
+                        {
+                            // Sala de boss
+                            prefab = bossRoomPrefab;
+                            spawnPos = pos + Vector3.up * bossRoomYOffset;
+                        }
+                        else if (belowBossIndex.HasValue && belowBossIndex.Value == idx)
+                        {
+                            // Sala justo debajo del boss: fuerza la puerta arriba
+                            prefab = GetRoomPrefabFor(idx, forceTopDoor: true);
+                        }
+                        else
+                        {
+                            // Resto de salas con su lógica normal
+                            prefab = GetRoomPrefabFor(idx, forceTopDoor: false);
+                        }
 
+                        var roomGO = Instantiate(prefab, spawnPos, Quaternion.identity);
+                        roomGO.name = bossRoomIndex == idx ? "BossRoom" : $"Room-{roomNumber++}";
 
-
-                        roomObjects.Add(room);
-                        roomNumber++;
+                        var ctrl = roomGO.GetComponent<RoomController>();
+                        ctrl.RoomIndex = idx;
+                        RoomLookup[idx] = ctrl;
                     }
                 }
+            }
+
+            GameManager.Instance.LevelManager.Init();
+        }
+
+        private void PlaceBossRoom()
+        {
+            var startIdx = new Vector2Int(gridSizeX / 2, gridSizeY / 2);
+            var dist = new Dictionary<Vector2Int, int> { [startIdx] = 0 };
+            var q = new Queue<Vector2Int>();
+            q.Enqueue(startIdx);
+
+            while (q.Count > 0)
+            {
+                var u = q.Dequeue();
+                int d = dist[u];
+                foreach (var dir in new[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right })
+                {
+                    var v = u + dir;
+                    if (v.x >= 0 && v.x < gridSizeX &&
+                        v.y >= 0 && v.y < gridSizeY &&
+                        roomGrid[v.x, v.y] == 1 &&
+                        !dist.ContainsKey(v))
+                    {
+                        dist[v] = d + 1;
+                        q.Enqueue(v);
+                    }
+                }
+            }
+
+            // 2) Filtra candidatos: un único vecino y vecino arriba (para boss sólo puerta abajo)
+            var candidates = new List<(Vector2Int idx, int distance)>();
+            foreach (var kv in dist)
+            {
+                var idx = kv.Key;
+                bool hasBottom = idx.y > 0 && roomGrid[idx.x, idx.y - 1] == 1;
+                int neighs = CountAdjacentRooms(idx);
+                if (hasBottom && neighs == 1)
+                    candidates.Add((idx, kv.Value));
+            }
+
+            // 3) Elige la más lejana
+            if (candidates.Count > 0)
+            {
+                var bossIdx = candidates.OrderByDescending(c => c.distance).First().idx;
+                bossRoomIndex = bossIdx;
+                belowBossIndex = bossIdx + Vector2Int.down;  // el vecino bajo
+            }
+            else
+            {
+                Debug.LogWarning("No se encontró ninguna sala adecuada para colocar al boss.");
             }
         }
 
 
-        private GameObject GetRoomPrefabFor(Vector2Int roomIndex)
+        private GameObject GetRoomPrefabFor(Vector2Int roomIndex, bool forceTopDoor = false)
         {
             int x = roomIndex.x;
             int y = roomIndex.y;
@@ -177,6 +256,10 @@ namespace ggj25
             bool hasRight = x < gridSizeX - 1 && roomGrid[x + 1, y] != 0;
             bool hasTop = y < gridSizeY - 1 && roomGrid[x, y + 1] != 0;
             bool hasBottom = y > 0 && roomGrid[x, y - 1] != 0;
+
+            // Aplicar fuerza si se solicita
+            if (forceTopDoor)
+                hasTop = true;
 
             // 4 conexiones
             if (hasLeft && hasTop && hasRight && hasBottom) return roomPrefabLTRB;

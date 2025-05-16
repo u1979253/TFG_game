@@ -585,6 +585,7 @@ MonoBehaviour:
   roomPrefabLRB: {fileID: 8844442619399884025, guid: bde0abd45920c0347881beebf5aac935, type: 3}
   bossRoomPrefab: {fileID: 4325119730682703457, guid: 8ca01435e8f908049852cdd86aca0a78, type: 3}
   maxRooms: 15
+  bossRoomYOffset: 4
 --- !u!1 &1655564933
 GameObject:
   m_ObjectHideFlags: 0
