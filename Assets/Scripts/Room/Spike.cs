@@ -25,7 +25,6 @@ namespace ggj25
             {
                 return;
             }
-            print("colision con " + other.gameObject.name); 
             Destroy(gameObject); // Destruir proyectil al impactar
             
             SoundManager.Instance.PlaySFX(AudioType.SFX.ProjectileDestroyed);

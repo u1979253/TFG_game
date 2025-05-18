@@ -31,9 +31,9 @@ namespace ggj25
         int roomWidth = 30;
         int roomHeight = 20;
 
-        int gridSizeX = 12;
-        int gridSizeY = 12;
-
+        int gridSizeX = 10;
+        int gridSizeY = 10;
+        [SerializeField] private Vector2Int forcedRoom = new Vector2Int(5, 5);
         private List<GameObject> roomObjects = new List<GameObject>();
 
         private Vector2Int? bossRoomIndex = null;
@@ -62,7 +62,7 @@ namespace ggj25
             roomQueue = new Queue<Vector2Int>();
 
             Vector2Int initialRoomIndex = new Vector2Int(gridSizeX / 2, gridSizeY / 2);
-            StartRoomGenerationFromRoom(initialRoomIndex);
+            //StartRoomGenerationFromRoom(initialRoomIndex);
         }
 
         private void Update()
@@ -109,11 +109,22 @@ namespace ggj25
         {
             roomQueue.Clear();
             roomQueue.Enqueue(roomIndex);
+            if (IsInsideGrid(forcedRoom))
+            {
+                roomGrid[forcedRoom.x, forcedRoom.y] = 1;
+                roomCount++;
+                roomQueue.Enqueue(forcedRoom);
+            }
 
             int x = roomIndex.x; int y = roomIndex.y;
             roomGrid[x, y] = 1;
             roomCount++;
 
+        }
+
+        private bool IsInsideGrid(Vector2Int idx)
+        {
+            return idx.x >= 0 && idx.x < gridSizeX && idx.y >= 0 && idx.y < gridSizeY;
         }
 
         private bool TryGenerateRoom(Vector2Int roomIndex)
@@ -149,6 +160,18 @@ namespace ggj25
             return true;
         }
 
+        public void StartGeneration()
+        {
+            // limpia estado
+            generationComplete = false;
+            roomCount = 0;
+            roomNumber = 1;
+            roomGrid = new int[gridSizeX, gridSizeY];
+            roomQueue.Clear();
+            // inyecta la primera sala
+            var center = new Vector2Int(gridSizeX / 2, gridSizeY / 2);
+            StartRoomGenerationFromRoom(center);
+        }
 
 
         private void InstantiateAllRooms()
@@ -184,7 +207,7 @@ namespace ggj25
                             prefab = GetRoomPrefabFor(idx, forceTopDoor: false);
                         }
 
-                        var roomGO = Instantiate(prefab, spawnPos, Quaternion.identity);
+                        var roomGO = Instantiate(prefab, spawnPos, Quaternion.identity, this.transform);
                         roomGO.name = bossRoomIndex == idx ? "BossRoom" : $"Room-{roomNumber++}";
 
                         var ctrl = roomGO.GetComponent<RoomController>();
