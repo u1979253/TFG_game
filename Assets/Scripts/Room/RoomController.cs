@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace ggj25
 {
+    using Direction = DoorController.Direction;
     public class RoomController : MonoBehaviour
     {
         private const float UPDATE_RATE = 0.5f;
@@ -20,16 +21,8 @@ namespace ggj25
         
         [SerializeField, ReadOnly]
         private List<DoorController> _doors;
-        
+        private Dictionary<Direction, DoorController> _MapDoors;
         public float CleanFactor { get; private set; }
-
-        public enum Direction
-        {
-            Left,
-            Right,
-            Up,
-            Down
-        }
 
         public Vector2Int RoomIndex { get; set; }
         private HeroController _hero;
@@ -46,7 +39,14 @@ namespace ggj25
 
         public bool IsActive { get; private set; }
         public bool IsCompleted { get; private set; }
-        
+
+
+        private void Awake()
+        {
+            // recopilar todas las puertas hijo y mapearlas por dirección
+            _MapDoors = GetComponentsInChildren<DoorController>()
+                     .ToDictionary(d => d.Dir, d => d);
+        }
         public void Init()
         {
             _hero = GameObject.FindObjectOfType<HeroController>();
@@ -141,6 +141,12 @@ namespace ggj25
             _cleaningEffect.gameObject.SetActive(true);
             _cleaningEffect.Stop();
             _cleaningEffect.Play();
+        }
+
+        public void OpenDoor(Direction dir)
+        {
+            if (_MapDoors.TryGetValue(dir, out var door))
+                door.Open();
         }
         /*
         public void OpenDoor(Direction dir)

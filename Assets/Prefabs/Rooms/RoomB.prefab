@@ -178,9 +178,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   _roomController: {fileID: 0}
-  _changeScene: 0
-  _hasChanged: 0
-  _sceneToLoad: 
+  isProceduralPortal: 0
 --- !u!1 &867832270381879694
 GameObject:
   m_ObjectHideFlags: 0
@@ -1208,8 +1206,8 @@ Transform:
   m_GameObject: {fileID: 5560783799568882333}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -0.14195, y: -1.1383, z: 0}
-  m_LocalScale: {x: 1.4536501, y: 1.3846141, z: 1}
+  m_LocalPosition: {x: -0.44, y: -2.5, z: 0}
+  m_LocalScale: {x: 5, y: 4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7009808173642295974}
@@ -1275,9 +1273,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   _roomController: {fileID: 0}
-  _changeScene: 0
-  _hasChanged: 0
-  _sceneToLoad: 
+  isProceduralPortal: 0
 --- !u!1 &5671325381740116116
 GameObject:
   m_ObjectHideFlags: 0

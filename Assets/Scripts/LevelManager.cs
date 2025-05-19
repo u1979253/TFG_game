@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace ggj25
 {
+    using Direction = DoorController.Direction;
     public class LevelManager : MonoBehaviour
     {
         private float PLAYER_ROOM_CHECK_TIME = 1;
@@ -21,13 +22,6 @@ namespace ggj25
 
         public DustCleaner DustCleaner => _currentRoom?.DustCleaner;
 
-        public enum Direction
-        {
-            Left,
-            Right,
-            Up,
-            Down
-        }
 
         private void OnEnable()
         {
@@ -111,13 +105,6 @@ namespace ggj25
             }
         }
 
-        public void CleanCurrentRoom()
-        {
-            _currentRoom.Complete();
-            _completedRooms++;
-            CheckWinCondition();
-        }
-
         private void CheckWinCondition()
         {
             if (_completedRooms >= _rooms.Count)
@@ -133,47 +120,45 @@ namespace ggj25
                 && !_currentRoom.IsCompleted;
         }
 
-        /*
         private void UnlockAdjacentDoors(RoomController room)
         {
             var idx = room.RoomIndex;
-
-            // chequea cada vecino y abre ambas puertas
-            TryUnlock(idx + Vector2Int.left, Direction.Left);
-            TryUnlock(idx + Vector2Int.right, Direction.Right);
-            TryUnlock(idx + Vector2Int.up, Direction.Up);
-            TryUnlock(idx + Vector2Int.down, Direction.Down);
-        }
-        
-        private void TryUnlock(Vector2Int neighborIdx, Direction dirFromCurrent)
-        {
-            if (RoomManager.RoomLookup.TryGetValue(neighborIdx, out var neighbor))
+            foreach (Direction dir in System.Enum.GetValues(typeof(Direction)))
             {
-                // abre puerta en la habitación actual:
-                _currentRoom.OpenDoor(dirFromCurrent);
+                var offset = dir switch
+                {
+                    Direction.Left => Vector2Int.left,
+                    Direction.Right => Vector2Int.right,
+                    Direction.Up => Vector2Int.up,
+                    Direction.Down => Vector2Int.down,
+                    _ => Vector2Int.zero
+                };
 
-                // abre la puerta contraria en el vecino:
-                Direction opposite = Opposite(dirFromCurrent);
-                neighbor.OpenDoor(opposite);
+                var neighborIdx = idx + offset;
+                if (RoomManager.RoomLookup.TryGetValue(neighborIdx, out var neighborRoom))
+                {
+                    // abre la puerta de esta sala
+                    room.OpenDoor(dir);
+                    // abre la puerta contraria en la vecina
+                    Direction opp = dir switch
+                    {
+                        Direction.Left => Direction.Right,
+                        Direction.Right => Direction.Left,
+                        Direction.Up => Direction.Down,
+                        Direction.Down => Direction.Up,
+                        _ => dir
+                    };
+                    neighborRoom.OpenDoor(opp);
+                }
             }
         }
 
-        private Direction Opposite(Direction d)
+        public void CleanCurrentRoom()
         {
-            return d switch
-            {
-                Direction.Left => Direction.Right,
-                Direction.Right => Direction.Left,
-                Direction.Up => Direction.Down,
-                Direction.Down => Direction.Up,
-                _ => throw new ArgumentOutOfRangeException()
-            };
+            _currentRoom.Complete();
+            UnlockAdjacentDoors(_currentRoom);
+            _completedRooms++;
+            CheckWinCondition();
         }
-        */
-        /*public void Rewpawn()
-        {
-            _hero.transform.position = _currentRoom.CheckPoint.position;
-        }
-        */
     }
 }
