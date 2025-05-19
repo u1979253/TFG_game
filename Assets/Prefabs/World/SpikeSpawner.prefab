@@ -101,7 +101,7 @@ MonoBehaviour:
   spikePrefab: {fileID: 2977343639943734788, guid: 9458b514defb1324d97342ddc7db2572, type: 3}
   shootPoint: {fileID: 6340110251765961450}
   shootFrequency: 2
-  shootDirection: {x: 0, y: 1}
+  shootDirection: {x: 1, y: 0}
   spikeSpeed: 5
 --- !u!1 &2494867117224164727
 GameObject:

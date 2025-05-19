@@ -55,6 +55,11 @@ namespace ggj25
 
         [SerializeField] private float bossRoomYOffset = 1.5f;
 
+        [Header("Enemy Spawns")]
+        [SerializeField] private List<GameObject> _enemyPrefabs;
+        [SerializeField] private int _minEnemiesPerRoom = 1;
+        [SerializeField] private int _maxEnemiesPerRoom = 4;
+
 
         private void Start()
         {
@@ -216,7 +221,7 @@ namespace ggj25
                     }
                 }
             }
-
+            SpawnAllEnemies();
             GameManager.Instance.LevelManager.Init();
         }
 
@@ -336,6 +341,15 @@ namespace ggj25
                     Vector3 position = GetPositionFromGridIndex(new Vector2Int(x, y));
                     Gizmos.DrawWireCube(position, new Vector3(roomWidth, roomHeight, 1f));
                 }
+            }
+        }
+
+        private void SpawnAllEnemies()
+        {
+            foreach (var kv in RoomLookup)
+            {
+                var room = kv.Value;
+                room.SpawnEnemies(_enemyPrefabs, _minEnemiesPerRoom, _maxEnemiesPerRoom);
             }
         }
     }

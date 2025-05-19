@@ -61,4 +61,12 @@ MonoBehaviour:
   roomPrefabLRB: {fileID: 8844442619399884025, guid: bde0abd45920c0347881beebf5aac935, type: 3}
   bossRoomPrefab: {fileID: 4325119730682703457, guid: 8ca01435e8f908049852cdd86aca0a78, type: 3}
   maxRooms: 15
+  forcedRoom: {x: 5, y: 5}
   bossRoomYOffset: 4
+  _enemyPrefabs:
+  - {fileID: 1170083296408213947, guid: 36758da2ccb90fc458de5cfbf605f110, type: 3}
+  - {fileID: 6571518902107035527, guid: 90334d95867820247b0acbafdbba5ab1, type: 3}
+  - {fileID: 5721120530075198947, guid: d4a47c681d3925c4a8747457baac336a, type: 3}
+  - {fileID: 2977343639943734788, guid: 24fae0b8a22f1d74aa41d5ca68a01839, type: 3}
+  _minEnemiesPerRoom: 1
+  _maxEnemiesPerRoom: 4

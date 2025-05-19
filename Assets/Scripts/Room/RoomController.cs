@@ -35,7 +35,7 @@ namespace ggj25
         [SerializeField] private Collider2D _roomAreaCollider;
 
         private float _timeStamp;
-
+        [SerializeField] private List<Transform> _spawnPoints;
 
         public bool IsActive { get; private set; }
         public bool IsCompleted { get; private set; }
@@ -148,18 +148,44 @@ namespace ggj25
             if (_MapDoors.TryGetValue(dir, out var door))
                 door.Open();
         }
-        /*
-        public void OpenDoor(Direction dir)
+        public void SpawnEnemies(List<GameObject> enemyPrefabs, int minCount, int maxCount)
         {
-            // por ejemplo, desactiva el candado
-            switch (dir)
+            if (_spawnPoints == null || _spawnPoints.Count == 0) return;
+            if (enemyPrefabs == null || enemyPrefabs.Count == 0) return;
+
+            int count = Random.Range(minCount, maxCount + 1);
+            var available = new List<Transform>(_spawnPoints);
+
+            for (int i = 0; i < count && available.Count > 0; i++)
             {
-                case Direction.Left: doorLeftLock.SetActive(false); break;
-                case Direction.Right: doorRightLock.SetActive(false); break;
-                case Direction.Up: doorTopLock.SetActive(false); break;
-                case Direction.Down: doorBottomLock.SetActive(false); break;
+                int pi = Random.Range(0, available.Count);
+                Transform spawn = available[pi];
+                available.RemoveAt(pi);
+
+                int ei = Random.Range(0, enemyPrefabs.Count);
+                var prefab = enemyPrefabs[ei];
+
+                // Instancia el enemigo como hijo de la sala
+                var go = Instantiate(prefab, spawn.position, Quaternion.identity, this.transform);
+
+                if (ei == 0)
+                {
+                    var spawner = go.GetComponent<SpikeSpawner>();
+                    if (spawner != null)
+                    {
+                        bool shootLeft = spawn.position.x > transform.position.x;
+                        Vector2 dir = shootLeft ? Vector2.left : Vector2.right;
+                        spawner.SetShootDirection(dir);
+
+                        // Si dispara a la izquierda, invertimos el sprite en X:
+                        if (shootLeft)
+                        {
+                            var ls = go.transform.localScale;
+                            go.transform.localScale = new Vector3(-Mathf.Abs(ls.x), ls.y, ls.z);
+                        }
+                    }
+                }
             }
         }
-        */
     }
 }
