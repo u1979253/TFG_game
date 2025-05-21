@@ -107,7 +107,8 @@ namespace ggj25
 
         private void CheckWinCondition()
         {
-            if (_completedRooms >= _rooms.Count)
+            if (_currentRoom.name.Equals("BossRoom", StringComparison.OrdinalIgnoreCase)
+        && _currentRoom.IsCompleted)
             {
                 _gameWon = true;
                 GameManager.Instance.GameOver(true);

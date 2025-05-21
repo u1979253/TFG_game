@@ -60,6 +60,7 @@ MonoBehaviour:
   roomPrefabTB: {fileID: 8844442619399884025, guid: 703e3aa0d75c20949a950c1d06f28446, type: 3}
   roomPrefabLRB: {fileID: 8844442619399884025, guid: bde0abd45920c0347881beebf5aac935, type: 3}
   bossRoomPrefab: {fileID: 4325119730682703457, guid: 8ca01435e8f908049852cdd86aca0a78, type: 3}
+  room2x1Prefab: {fileID: 6566964686057636230, guid: 77484018f8b30c847824612d673d5769, type: 3}
   maxRooms: 15
   forcedRoom: {x: 5, y: 5}
   bossRoomYOffset: 4

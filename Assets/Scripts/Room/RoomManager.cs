@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 namespace ggj25
 {
@@ -25,6 +26,8 @@ namespace ggj25
         [SerializeField] private GameObject roomPrefabLRB;
         [SerializeField] private GameObject bossRoomPrefab;
 
+        [SerializeField] private GameObject room2x1Prefab;
+
         [SerializeField] private int maxRooms = 15;
         //[SerializeField] private int minRooms = 8;
 
@@ -40,6 +43,9 @@ namespace ggj25
         private Vector2Int? belowBossIndex = null;
 
         private Queue<Vector2Int> roomQueue = new Queue<Vector2Int>();
+
+        private HashSet<Vector2Int> _skipCells;
+        private Dictionary<Vector2Int, GameObject> _multiCellRooms;
 
         private int[,] roomGrid;
 
@@ -181,46 +187,94 @@ namespace ggj25
 
         private void InstantiateAllRooms()
         {
-            PlaceBossRoom();  // inicializa bossRoomIndex y belowBossIndex
+            PlaceBossRoom();  // no lo tocamos
 
             RoomLookup = new Dictionary<Vector2Int, RoomController>();
+            _skipCells = new HashSet<Vector2Int>();
+            _multiCellRooms = new Dictionary<Vector2Int, GameObject>();
 
+            // 1) Detectar pares 2×1 elegibles
+            //    Recorremos toda la grilla salvo la última columna
+            for (int x = 0; x < gridSizeX - 1; x++)
+            {
+                for (int y = 0; y < gridSizeY; y++)
+                {
+                    var a = new Vector2Int(x, y);
+                    var b = new Vector2Int(x + 1, y);
+
+                    // 1. Ambos deben existir
+                    if (roomGrid[x, y] != 1 || roomGrid[x + 1, y] != 1)
+                        continue;
+
+                    // 2. Debe haber sala a la izquierda de 'a' y a la derecha de 'b'
+                    bool hasLeft = x > 0 && roomGrid[x - 1, y] == 1;
+                    bool hasRight = (x + 1) < gridSizeX - 1 && roomGrid[x + 2, y] == 1;
+                    if (!hasLeft || !hasRight)
+                        continue;
+
+                    // 3. Ninguno de los dos puede tener un vecino arriba o abajo
+                    bool aVert = (y > 0 && roomGrid[x, y - 1] == 1)
+                              || (y < gridSizeY - 1 && roomGrid[x, y + 1] == 1);
+                    bool bVert = (y > 0 && roomGrid[x + 1, y - 1] == 1)
+                              || (y < gridSizeY - 1 && roomGrid[x + 1, y + 1] == 1);
+                    if (aVert || bVert)
+                        continue;
+
+                    // — Si pasamos todos los filtros, marcamos el par —
+                    _skipCells.Add(b);                 // saltamos la segunda casilla
+                    _multiCellRooms[a] = room2x1Prefab; // en la primera instanciamos el 2×1
+                }
+            }
+
+            // 2) Instanciación real
             for (int x = 0; x < gridSizeX; x++)
             {
                 for (int y = 0; y < gridSizeY; y++)
                 {
-                    if (roomGrid[x, y] == 1)
+                    var idx = new Vector2Int(x, y);
+                    if (roomGrid[x, y] != 1) continue;   // no hay sala
+                    if (_skipCells.Contains(idx)) continue;   // parte alta de un par 2×1
+
+                    // Decide qué prefab usar
+                    GameObject prefab;
+                    Vector3 spawnPos = GetPositionFromGridIndex(idx);
+
+                    if (bossRoomIndex.HasValue && bossRoomIndex.Value == idx)
                     {
-                        var idx = new Vector2Int(x, y);
-                        var pos = GetPositionFromGridIndex(idx);
-                        GameObject prefab;
-                        Vector3 spawnPos = pos;
-                        if (bossRoomIndex.HasValue && bossRoomIndex.Value == idx)
-                        {
-                            // Sala de boss
-                            prefab = bossRoomPrefab;
-                            spawnPos = pos + Vector3.up * bossRoomYOffset;
-                        }
-                        else if (belowBossIndex.HasValue && belowBossIndex.Value == idx)
-                        {
-                            // Sala justo debajo del boss: fuerza la puerta arriba
-                            prefab = GetRoomPrefabFor(idx, forceTopDoor: true);
-                        }
-                        else
-                        {
-                            // Resto de salas con su lógica normal
-                            prefab = GetRoomPrefabFor(idx, forceTopDoor: false);
-                        }
+                        prefab = bossRoomPrefab;
+                        spawnPos = spawnPos + Vector3.up * bossRoomYOffset;
+                    }
+                    else if (_multiCellRooms.TryGetValue(idx, out var multi))
+                    {
+                        // Cabecera del par 2×1
+                        prefab = multi;
+                        spawnPos = spawnPos + new Vector3(4.7f, 1f, 0f);
+                    }
+                    else if (belowBossIndex.HasValue && belowBossIndex.Value == idx)
+                    {
+                        prefab = GetRoomPrefabFor(idx, forceTopDoor: true);
+                    }
+                    else
+                    {
+                        prefab = GetRoomPrefabFor(idx, forceTopDoor: false);
+                    }
 
-                        var roomGO = Instantiate(prefab, spawnPos, Quaternion.identity, this.transform);
-                        roomGO.name = bossRoomIndex == idx ? "BossRoom" : $"Room-{roomNumber++}";
+                    // Instancia y registra
+                    var roomGO = Instantiate(prefab, spawnPos, Quaternion.identity, this.transform);
+                    roomGO.name = (bossRoomIndex == idx) ? "BossRoom" : $"Room-{roomNumber++}";
 
-                        var ctrl = roomGO.GetComponent<RoomController>();
-                        ctrl.RoomIndex = idx;
-                        RoomLookup[idx] = ctrl;
+                    var ctrl = roomGO.GetComponent<RoomController>();
+                    ctrl.RoomIndex = idx;
+                    RoomLookup[idx] = ctrl;
+                    if (_multiCellRooms.ContainsKey(idx))
+                    {
+                        var rightCell = idx + Vector2Int.right;
+                        RoomLookup[rightCell] = ctrl;
                     }
                 }
             }
+
+            // 3) Enemies y notificaciones
             SpawnAllEnemies();
             GameManager.Instance.LevelManager.Init();
         }
